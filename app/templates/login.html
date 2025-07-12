@@ -8,10 +8,8 @@
 </head>
 <body>
     <div class="login-container">
-        <!-- 左侧品牌展示区 -->
         <div class="brand-section">
             <div class="brand-content">
-                <!-- 装饰图标 -->
                 <div class="brand-icons">
                     <div class="icon-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -41,7 +39,7 @@
                 <h1>快速、高效、便捷</h1>
                 <p>您的教务助手，轻松掌控学习生活</p>
                 
-                <!-- 特色功能展示 -->
+                
                 <div class="feature-highlights">
                     <div class="feature-item">
                         <span class="feature-icon">📊</span>
@@ -55,7 +53,6 @@
             </div>
         </div>
 
-        <!-- 右侧登录表单 -->
         <div class="form-section">
             <div class="login-card">
                 <div class="card-header">
@@ -122,14 +119,14 @@
         const btnLoader = document.querySelector('.btn-loader');
         const passwordToggle = document.getElementById('passwordToggle');
 
-        // 密码显示/隐藏切换
+        
         passwordToggle.addEventListener('click', () => {
             const type = passwordInput.type === 'password' ? 'text' : 'password';
             passwordInput.type = type;
             passwordToggle.classList.toggle('active');
         });
 
-        // 尝试读取本地存储中的账号密码
+       
         const storedUser = localStorage.getItem('hutb_username');
         const storedPass = localStorage.getItem('hutb_password');
         if (storedUser && storedPass) {
@@ -138,9 +135,9 @@
             rememberCheckbox.checked = true;
         }
 
-        // 表单提交处理
+        
         loginForm.addEventListener('submit', (e) => {
-            // 保存密码逻辑
+            
             if (rememberCheckbox.checked) {
                 localStorage.setItem('hutb_username', usernameInput.value);
                 localStorage.setItem('hutb_password', passwordInput.value);
@@ -149,13 +146,13 @@
                 localStorage.removeItem('hutb_password');
             }
             
-            // 显示加载动画
+            
             btnText.style.display = 'none';
             btnLoader.style.display = 'block';
             loginBtn.disabled = true;
         });
 
-        // 输入框焦点效果
+        
         document.querySelectorAll('input[type="text"], input[type="password"]').forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentNode.classList.add('focused');
@@ -167,7 +164,7 @@
                 }
             });
             
-            // 如果有值，保持焦点状态
+            
             if (input.value) {
                 input.parentNode.classList.add('focused');
             }

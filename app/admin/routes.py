@@ -6,7 +6,7 @@ from app.models.db import (
     get_usage_stats, log_user_login, log_system_usage
 )
 
-# 创建后台管理蓝图
+
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 def admin_required(f):
@@ -31,7 +31,7 @@ def login():
         flash('用户名和密码不能为空')
         return render_template('admin/login.html')
     
-    # 验证管理员
+    
     admin_user = verify_admin_user(username, password)
     if admin_user:
         session['admin_id'] = admin_user[0]
@@ -90,7 +90,7 @@ def api_usage_chart():
     days = request.args.get('days', 7, type=int)
     usage_stats = get_usage_stats(days=days)
     
-    # 格式化数据供图表使用
+    
     chart_data = {
         'dates': [],
         'total_queries': [],

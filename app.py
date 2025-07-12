@@ -13,7 +13,7 @@ from app.crawler.schedule_crawler import get_student_schedule_html
 from app.models.db import log_user_login, log_system_usage, get_user_by_username
 import traceback
 
-# 配置日志
+
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s [%(levelname)s] %(message)s',
@@ -26,14 +26,14 @@ logger = logging.getLogger('app')
 
 app = Flask(__name__, template_folder='app/templates', static_folder='app/static')
 
-# 配置Flask应用 - 使用固定的secret_key代替动态生成
-app.secret_key = "hutb_jwxt_secret_key_2024"  # 固定密钥
 
-# 配置会话
+app.secret_key = "YOUR_SECRET_KEY_HERE" 
+
+
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 会话有效期
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24) 
 
-# 优先使用Redis作为会话存储，如果不可用则使用文件系统
+
 try:
     import redis
     from flask_session import Session
@@ -46,7 +46,7 @@ except ImportError:
         from flask_session import Session
         app.config['SESSION_TYPE'] = 'filesystem'
         
-        # 确保会话文件存储在有写权限的目录
+        
         session_dir = '/tmp/flask_session'
         if not os.path.exists(session_dir):
             try:
@@ -64,14 +64,14 @@ except ImportError:
         print("回退到默认会话管理（不推荐用于生产环境）")
         app.config['SESSION_TYPE'] = None
 
-# 配置OpenAI
-DASHSCOPE_API_KEY = "sk-863f29755e2c44b190836b2587fdd3e0"
 
-# 注册后台管理蓝图
+DASHSCOPE_API_KEY = "YOUR_DASHSCOPE_API_KEY_HERE"
+
+
 from app.admin.routes import admin_bp
 app.register_blueprint(admin_bp)
 
-# 数据库配置在browser_login.py中已设置
+
 
 @app.route('/')
 def index():
@@ -85,29 +85,29 @@ def login():
 def process_login():
     start_time = time.time()
     
-    # 获取客户端信息
+    
     ip_address = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR'))
     user_agent = request.headers.get('User-Agent')
     
-    # 生成设备标识符
+    
     device_id = hashlib.md5(f"{ip_address}:{user_agent}".encode()).hexdigest()
     
-    # 处理登录
+    
     from app.crawler.login import handle_login_request
     result = handle_login_request()
     
-    # 记录登录日志
+    
     if 'username' in session:
         username = session['username']
         status = 'success'
         log_user_login(username, ip_address, user_agent, status)
         
-        # 添加设备标识符到会话
+        
         session['device_id'] = device_id
-        # 使用设备ID和用户名组合作为会话标识符
+        
         session['session_id'] = f"{username}_{device_id}"
         
-        # 强制保存会话
+        
         session.modified = True
     
     return result
@@ -120,21 +120,21 @@ def dashboard():
     
     username = session['username']
     
-    # 验证会话是否完整
+    
     if 'device_id' not in session or 'session_id' not in session:
         device_id = hashlib.md5(f"{request.environ.get('REMOTE_ADDR')}:{request.headers.get('User-Agent')}".encode()).hexdigest()
         session['device_id'] = device_id
         session['session_id'] = f"{username}_{device_id}"
         session.modified = True
     
-    # 获取用户真实姓名
+    
     try:
         from app.models.db import get_user_real_name
         real_name = get_user_real_name(username)
     except Exception as e:
         real_name = None
     
-    # 如果无法获取真实姓名，则使用用户名代替
+
     if not real_name:
         real_name = username
     
@@ -149,7 +149,7 @@ def logout():
     flash('已退出登录')
     return redirect(url_for('login'))
 
-# 添加一个路由来显示当前会话信息（调试用）
+
 @app.route('/debug/session')
 def debug_session():
     if not app.debug:
@@ -160,7 +160,7 @@ def debug_session():
         'session_file_dir': app.config.get('SESSION_FILE_DIR'),
     })
 
-# 添加成绩查询API
+
 @app.route('/api/scores', methods=['GET'])
 def get_scores():
     if 'username' not in session:
@@ -174,19 +174,17 @@ def get_scores():
     semester = request.args.get('semester', None)
     start_time = time.time()
     
-    # 获取客户端信息
     ip_address = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR'))
     
-    # 确保用户名与当前会话匹配
+    
     if not session_id or not session_id.startswith(f"{username}_"):
         return jsonify({"success": False, "message": "会话已失效，请重新登录"}), 401
     
     success, result = get_student_scores_html(username, semester)
     
-    # 计算响应时间
     response_time = int((time.time() - start_time) * 1000)
     
-    # 记录使用日志
+    
     log_system_usage(
         username=username,
         action_type='score_query',
@@ -202,7 +200,7 @@ def get_scores():
     else:
         return jsonify({"success": False, "message": result}), 500
 
-# 添加课表查询API
+
 @app.route('/api/schedule', methods=['GET'])
 def get_schedule():
     if 'username' not in session:
@@ -216,19 +214,17 @@ def get_schedule():
     semester = request.args.get('semester', None)
     start_time = time.time()
     
-    # 获取客户端信息
     ip_address = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR'))
     
-    # 确保用户名与当前会话匹配
+    
     if not session_id or not session_id.startswith(f"{username}_"):
         return jsonify({"success": False, "message": "会话已失效，请重新登录"}), 401
     
     success, result = get_student_schedule_html(username, semester)
     
-    # 计算响应时间
     response_time = int((time.time() - start_time) * 1000)
     
-    # 记录使用日志
+    
     log_system_usage(
         username=username,
         action_type='schedule_query',

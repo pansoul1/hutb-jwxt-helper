@@ -6,8 +6,8 @@ def get_db_connection():
     """获取数据库连接"""
     return pymysql.connect(
         host='localhost',
-        user='root',
-        password='root',
+        user='YOUR_DB_USER',
+        password='YOUR_DB_PASSWORD',
         database='newhutb',
         charset='utf8mb4'
     )
@@ -17,7 +17,7 @@ def init_database():
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 创建users表（如果不存在）
+          
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -33,7 +33,7 @@ def init_database():
             )
             ''')
             
-            # 创建管理员表
+           
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS admin_users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -46,7 +46,7 @@ def init_database():
             )
             ''')
             
-            # 创建用户登录日志表
+           
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS user_login_logs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +60,7 @@ def init_database():
             )
             ''')
             
-            # 创建系统使用日志表
+          
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS system_usage_logs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -78,7 +78,7 @@ def init_database():
             )
             ''')
             
-            # 创建系统统计表
+          
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS system_stats (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -94,8 +94,7 @@ def init_database():
             )
             ''')
             
-            # 检查现有列，如果不存在则添加
-            # 检查ticket1列
+          
             cursor.execute('''
             SELECT COUNT(*) 
             FROM information_schema.columns 
@@ -110,7 +109,7 @@ def init_database():
                 ADD COLUMN ticket1_expiry TIMESTAMP NULL
                 ''')
             
-            # 检查real_name列
+        
             cursor.execute('''
             SELECT COUNT(*) 
             FROM information_schema.columns 
@@ -124,7 +123,7 @@ def init_database():
                 ADD COLUMN real_name VARCHAR(50)
                 ''')
             
-            # 检查raw_password列
+           
             cursor.execute('''
             SELECT COUNT(*) 
             FROM information_schema.columns 
@@ -138,19 +137,17 @@ def init_database():
                 ADD COLUMN raw_password VARCHAR(255)
                 ''')
             
-            # 插入默认管理员账号（如果不存在）
-            cursor.execute('SELECT COUNT(*) FROM admin_users WHERE username = %s', ('pansoul',))
+          
+            cursor.execute('SELECT COUNT(*) FROM admin_users WHERE username = %s', ('YOUR_ADMIN_USERNAME_HERE',))
             if cursor.fetchone()[0] == 0:
-                # 默认密码: psy030413，使用简单的哈希
+              
                 import hashlib
-                password_hash = hashlib.sha256('psy030413'.encode()).hexdigest()
+                password_hash = hashlib.sha256('YOUR_ADMIN_PASSWORD_HERE'.encode()).hexdigest()
                 cursor.execute('''
                 INSERT INTO admin_users (username, password_hash, role) 
                 VALUES (%s, %s, %s)
-                ''', ('pansoul', password_hash, 'super_admin'))
+                ''', ('YOUR_ADMIN_USERNAME_HERE', password_hash, 'super_admin'))
             
-            # 删除旧的admin账号（如果存在）
-            cursor.execute('DELETE FROM admin_users WHERE username = %s', ('admin',))
             
         connection.commit()
         connection.close()
@@ -166,10 +163,10 @@ def save_user_credentials(username, encrypted_password, cookies, raw_password=No
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 将cookies转换为JSON字符串存储
+           
             cookies_str = json.dumps(cookies)
             
-            # 检查表中是否已有raw_password列
+            
             cursor.execute('''
             SELECT COUNT(*) 
             FROM information_schema.columns 
@@ -179,13 +176,13 @@ def save_user_credentials(username, encrypted_password, cookies, raw_password=No
             ''')
             
             if cursor.fetchone()[0] == 0:
-                # 添加raw_password列
+              
                 cursor.execute('''
                 ALTER TABLE users 
                 ADD COLUMN raw_password VARCHAR(255)
                 ''')
             
-            # 插入或更新用户凭据
+         
             cursor.execute('''
             INSERT INTO users (username, encrypted_password, raw_password, cookies) 
             VALUES (%s, %s, %s, %s)
@@ -224,10 +221,10 @@ def save_user_cookies(username, cookies):
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 将cookies转换为JSON字符串存储
+          
             cookies_str = json.dumps(cookies)
             
-            # 直接插入，如遇主键冲突则更新，避免由于 UPDATE 未改变内容 rowcount 为 0 而导致的误判
+     
             cursor.execute('''
             INSERT INTO users (username, cookies)
             VALUES (%s, %s)
@@ -267,7 +264,7 @@ def save_user_ticket1(username, ticket1, expiry_hours=24):
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 设置过期时间
+           
             cursor.execute('''
             UPDATE users SET 
             ticket1 = %s,
@@ -275,7 +272,7 @@ def save_user_ticket1(username, ticket1, expiry_hours=24):
             WHERE username = %s
             ''', (ticket1, expiry_hours, username))
             
-            # 如果用户不存在，则创建新用户
+           
             if cursor.rowcount == 0:
                 cursor.execute('''
                 INSERT INTO users (username, ticket1, ticket1_expiry) 
@@ -305,7 +302,7 @@ def get_user_ticket1(username):
         connection.close()
         
         if result:
-            return result[0]  # 返回ticket1
+            return result[0]  
         return None
     except Exception as e:
         traceback.print_exc()
@@ -318,7 +315,7 @@ def save_user_real_name(username, real_name):
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 使用INSERT...ON DUPLICATE KEY UPDATE语法避免主键冲突
+           
             cursor.execute('''
             INSERT INTO users (username, real_name) 
             VALUES (%s, %s)
@@ -344,7 +341,7 @@ def save_user_raw_password(username, raw_password):
             UPDATE users SET raw_password = %s WHERE username = %s
             ''', (raw_password, username))
             
-            # 如果用户不存在，创建新记录
+           
             if cursor.rowcount == 0:
                 cursor.execute('''
                 INSERT IGNORE INTO users (username, raw_password) VALUES (%s, %s)
@@ -375,7 +372,7 @@ def get_user_real_name(username):
         traceback.print_exc()
         return None
 
-# ========== 后台管理相关函数 ==========
+
 
 def verify_admin_user(username, password):
     """验证管理员登录"""
@@ -393,7 +390,7 @@ def verify_admin_user(username, password):
             result = cursor.fetchone()
             
             if result:
-                # 更新最后登录时间
+               
                 cursor.execute('''
                 UPDATE admin_users SET last_login = NOW() WHERE id = %s
                 ''', (result[0],))
@@ -443,11 +440,11 @@ def get_dashboard_stats():
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 总用户数
+          
             cursor.execute('SELECT COUNT(*) FROM users')
             total_users = cursor.fetchone()[0]
             
-            # 今日活跃用户数
+            
             cursor.execute('''
             SELECT COUNT(DISTINCT username) 
             FROM user_login_logs 
@@ -455,7 +452,7 @@ def get_dashboard_stats():
             ''')
             today_active_users = cursor.fetchone()[0]
             
-            # 今日查询次数
+            
             cursor.execute('''
             SELECT COUNT(*) 
             FROM system_usage_logs 
@@ -463,7 +460,7 @@ def get_dashboard_stats():
             ''')
             today_queries = cursor.fetchone()[0]
             
-            # 今日错误次数
+            
             cursor.execute('''
             SELECT COUNT(*) 
             FROM system_usage_logs 
@@ -471,7 +468,7 @@ def get_dashboard_stats():
             ''')
             today_errors = cursor.fetchone()[0]
             
-            # 平均响应时间
+          
             cursor.execute('''
             SELECT AVG(response_time) 
             FROM system_usage_logs 
@@ -509,7 +506,7 @@ def get_user_list(page=1, per_page=20):
             ''', (per_page, offset))
             users = cursor.fetchall()
             
-            # 获取总数
+           
             cursor.execute('SELECT COUNT(*) FROM users')
             total = cursor.fetchone()[0]
             
@@ -531,7 +528,7 @@ def get_usage_stats(days=7):
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            # 获取最近N天的查询统计
+           
             cursor.execute('''
             SELECT DATE(query_time) as date,
                    COUNT(*) as total_queries,
@@ -552,5 +549,5 @@ def get_usage_stats(days=7):
         traceback.print_exc()
         return None
 
-# 初始化数据库
+
 init_database() 

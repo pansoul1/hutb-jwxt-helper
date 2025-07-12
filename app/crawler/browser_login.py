@@ -9,7 +9,7 @@ import traceback
 import re
 from flask import session, request, redirect, url_for, flash
 
-# 导入数据库模块
+
 from app.models.db import save_user_credentials, get_user_by_username
 
 def get_encrypted_password(username, password):
@@ -17,38 +17,38 @@ def get_encrypted_password(username, password):
     使用Selenium模拟浏览器获取加密后的密码
     """
     print(f"\n===== 开始获取加密密码 {username} =====")
-    # 设置Chrome浏览器
+   
     chrome_options = Options()
-    # 如果需要在服务器上运行，可以使用无头模式
+   
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     
     print("Chrome选项已设置，无头模式已启用")
     
-    # 指定chromedriver路径
+    
     chromedriver_path = "chromedriver/chromedriver.exe"
     print(f"chromedriver路径: {chromedriver_path}")
     
     try:
-        # 使用Service对象指定chromedriver路径
+        
         service = Service(executable_path=chromedriver_path)
         print("创建WebDriver服务...")
         driver = webdriver.Chrome(service=service, options=chrome_options)
         print("Chrome浏览器已启动")
         
-        # 打开教务系统登录页面
+       
         print("正在访问教务系统登录页面...")
         driver.get("https://cas.hutb.edu.cn/lyuapServer/login?service=http://jwgl.hutb.edu.cn/")
         
-        # 等待登录页面加载完成
+       
         print("等待页面元素加载...")
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "userName"))
         )
         print("页面元素已加载")
         
-        # 添加JavaScript来监听登录请求
+       
         print("注入JavaScript拦截器...")
         driver.execute_script("""
         // 创建原始XMLHttpRequest的引用
@@ -97,13 +97,13 @@ def get_encrypted_password(username, password):
         };
         """)
         
-        # 输入用户名、密码和验证码
+       
         print(f"输入用户名: {username}")
         driver.find_element(By.ID, "userName").send_keys(username)
         print("输入密码...")
         driver.find_element(By.ID, "password").send_keys(password)
         
-        # 检查是否存在验证码输入框，如果存在则输入固定值
+      
         try:
             captcha_field = driver.find_element(By.ID, "captcha")
             if captcha_field:
@@ -113,7 +113,7 @@ def get_encrypted_password(username, password):
             print("未找到验证码输入框")
             pass
         
-        # 直接使用方法2查找登录按钮
+      
         try:
             print("尝试查找并点击登录按钮...")
             login_button = driver.find_element(By.XPATH, "//button[contains(@class, 'ant-btn') and .//span[text()='登 录']]")
@@ -124,11 +124,11 @@ def get_encrypted_password(username, password):
             print("使用Enter键提交表单")
             driver.find_element(By.ID, "password").send_keys('\ue007')  # 使用Enter键作为备用方案
         
-        # 等待足够长的时间，确保请求发出
+        
         print(f"等待5秒钟，确保请求发出...")
         time.sleep(2)
         
-        # 尝试获取捕获的密码
+      
         print("尝试获取捕获的密码...")
         password_captured = driver.execute_script("return window.passwordCaptured;")
         
@@ -140,11 +140,11 @@ def get_encrypted_password(username, password):
             driver.quit()
             return True, encrypted_password
         
-        # 如果JavaScript捕获失败，尝试分析页面源代码
+      
         print("JavaScript捕获失败，尝试从页面源码分析...")
         page_source = driver.page_source
         
-        # 尝试从页面源码中找到密文格式的密码
+      
         password_patterns = [
             r'password\s*[=:]\s*[\'"]([a-f0-9]{60,})[\'"]',
             r'password\s*[=:]\s*[\'"]([^"\']{30,})[\'"]',
@@ -164,13 +164,13 @@ def get_encrypted_password(username, password):
                     driver.quit()
                     return True, potential_password
         
-        # 如果依然失败，查看URL，因为有些系统会在URL中传递参数
+        
         print("正则匹配失败，检查URL中的ticket参数...")
         current_url = driver.current_url
         print(f"当前URL: {current_url}")
         
         if "ticket=" in current_url:
-            # 某些系统使用ticket参数传递凭据
+           
             print("发现URL中包含ticket参数")
             ticket_match = re.search(r'ticket=([^&]+)', current_url)
             if ticket_match:
@@ -209,21 +209,21 @@ def handle_login_request():
         flash("请提供用户名和密码")
         return redirect(url_for('login'))
     
-    # 检查数据库中是否已有该用户的登录凭证
+   
     try:
         print(f"查询数据库中是否存在用户 {username}")
         user = get_user_by_username(username)
         
         if user:
-            # 用户已存在，返回密文信息
-            encrypted_password = user[2]  # 假设第三列是encrypted_password
+          
+            encrypted_password = user[2]  
             print(f"用户已存在，密文长度: {len(encrypted_password)}")
             session['username'] = username
             print(f"用户已添加到会话，重定向到仪表盘")
             flash(f"用户 {username} 已存在，成功获取密文")
             return redirect(url_for('dashboard'))
         else:
-            # 用户不存在，尝试获取密文
+          
             print(f"用户不存在，尝试获取密文")
             success, result = get_encrypted_password(username, password)
             
