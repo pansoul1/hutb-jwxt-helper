@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统计分析 - 教务系统后台</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f7fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: 60px 1fr;
+            grid-template-areas:
+                "sidebar header"
+                "sidebar main";
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            background: #2d3748;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #4a5568;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            color: #f7fafc;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: #cbd5e0;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #4a5568;
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .header {
+            grid-area: header;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            color: #2d3748;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-info {
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+        }
+
+        .main-content {
+            grid-area: main;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-filter select {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stats-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .stats-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .metric-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .metric-badge.queries {
+            background: #667eea;
+        }
+
+        .metric-badge.users {
+            background: #38a169;
+        }
+
+        .metric-badge.time {
+            background: #d69e2e;
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px auto 1fr;
+                grid-template-areas:
+                    "header"
+                    "sidebar"
+                    "main";
+            }
+
+            .sidebar {
+                padding: 10px 0;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 10px;
+            }
+
+            .nav-item {
+                margin-bottom: 0;
+                margin-right: 5px;
+                flex-shrink: 0;
+            }
+
+            .nav-link {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>管理后台</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link">📊 仪表板</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.users') }}" class="nav-link">👥 用户管理</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.stats') }}" class="nav-link active">📈 统计分析</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="header">
+            <h1>统计分析</h1>
+            <div class="header-actions">
+                <span class="admin-info">管理员: {{ session.admin_username }}</span>
+                <a href="{{ url_for('admin.logout') }}" class="logout-btn">退出</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">使用趋势图表</h3>
+                    <div class="time-filter">
+                        <label>时间范围:</label>
+                        <select id="daysSelect" onchange="changeDays()">
+                            <option value="7" {{ 'selected' if days == 7 else '' }}>最近7天</option>
+                            <option value="14" {{ 'selected' if days == 14 else '' }}>最近14天</option>
+                            <option value="30" {{ 'selected' if days == 30 else '' }}>最近30天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="usageChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">详细统计数据</h3>
+                </div>
+                {% if usage_stats %}
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>总查询次数</th>
+                            <th>成绩查询</th>
+                            <th>课表查询</th>
+                            <th>活跃用户</th>
+                            <th>平均响应时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in usage_stats %}
+                        <tr>
+                            <td>{{ stat[0] }}</td>
+                            <td><span class="metric-badge queries">{{ stat[1] }}</span></td>
+                            <td><span class="metric-badge queries">{{ stat[2] }}</span></td>
+                            <td><span class="metric-badge queries">{{ stat[3] }}</span></td>
+                            <td><span class="metric-badge users">{{ stat[4] }}</span></td>
+                            <td><span class="metric-badge time">{{ "%.1f"|format(stat[5] or 0) }}ms</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <p>暂无统计数据</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 图表数据
+        const chartData = {
+            dates: [
+                {% for stat in usage_stats %}
+                "{{ stat[0] }}",
+                {% endfor %}
+            ].reverse(),
+            totalQueries: [
+                {% for stat in usage_stats %}
+                {{ stat[1] }},
+                {% endfor %}
+            ].reverse(),
+            scoreQueries: [
+                {% for stat in usage_stats %}
+                {{ stat[2] }},
+                {% endfor %}
+            ].reverse(),
+            scheduleQueries: [
+                {% for stat in usage_stats %}
+                {{ stat[3] }},
+                {% endfor %}
+            ].reverse(),
+            activeUsers: [
+                {% for stat in usage_stats %}
+                {{ stat[4] }},
+                {% endfor %}
+            ].reverse()
+        };
+
+        // 初始化图表
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.dates,
+                datasets: [
+                    {
+                        label: '总查询次数',
+                        data: chartData.totalQueries,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '成绩查询',
+                        data: chartData.scoreQueries,
+                        borderColor: '#38a169',
+                        backgroundColor: 'rgba(56, 161, 105, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '课表查询',
+                        data: chartData.scheduleQueries,
+                        borderColor: '#d69e2e',
+                        backgroundColor: 'rgba(214, 158, 46, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '活跃用户',
+                        data: chartData.activeUsers,
+                        borderColor: '#e53e3e',
+                        backgroundColor: 'rgba(229, 62, 62, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '查询次数'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '活跃用户数'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '系统使用趋势'
+                    }
+                }
+            }
+        });
+
+        function changeDays() {
+            const days = document.getElementById('daysSelect').value;
+            window.location.href = `{{ url_for('admin.stats') }}?days=${days}`;
+        }
+
+        // 设置当前活跃导航
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

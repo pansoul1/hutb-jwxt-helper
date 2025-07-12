@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>湖南工商大学教务系统 - 登录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
+</head>
+<body>
+    <div class="login-container">
+        <!-- 左侧品牌展示区 -->
+        <div class="brand-section">
+            <div class="brand-content">
+                <!-- 装饰图标 -->
+                <div class="brand-icons">
+                    <div class="icon-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div class="icon-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                    </div>
+                    <div class="icon-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6"/>
+                            <path d="M21 12h-6m-6 0H3"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <h1>快速、高效、便捷</h1>
+                <p>您的教务助手，轻松掌控学习生活</p>
+                
+                <!-- 特色功能展示 -->
+                <div class="feature-highlights">
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>成绩查询</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📅</span>
+                        <span>课程表</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧登录表单 -->
+        <div class="form-section">
+            <div class="login-card">
+                <div class="card-header">
+                    <h2>登录</h2>
+                    <p>欢迎使用教务系统助手</p>
+                </div>
+
+                {% if get_flashed_messages() %}
+                <div class="flash-message">
+                    {{ get_flashed_messages()[0] }}
+                </div>
+                {% endif %}
+
+                <form id="loginForm" action="/process_login" method="post">
+                    <div class="form-group">
+                        <label for="username">学号</label>
+                        <input type="text" id="username" name="username" required placeholder="请输入学号" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" required placeholder="请输入密码">
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group remember-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe" name="remember">
+                            <span class="checkmark"></span>
+                            记住账号和密码
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <span class="btn-text">登录</span>
+                        <div class="btn-loader" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </form>
+                
+                <div class="login-notice">
+                    首次登录需要较长时间处理，请耐心等待
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const rememberCheckbox = document.getElementById('rememberMe');
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.querySelector('.btn-text');
+        const btnLoader = document.querySelector('.btn-loader');
+        const passwordToggle = document.getElementById('passwordToggle');
+
+        // 密码显示/隐藏切换
+        passwordToggle.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            passwordToggle.classList.toggle('active');
+        });
+
+        // 尝试读取本地存储中的账号密码
+        const storedUser = localStorage.getItem('hutb_username');
+        const storedPass = localStorage.getItem('hutb_password');
+        if (storedUser && storedPass) {
+            usernameInput.value = storedUser;
+            passwordInput.value = storedPass;
+            rememberCheckbox.checked = true;
+        }
+
+        // 表单提交处理
+        loginForm.addEventListener('submit', (e) => {
+            // 保存密码逻辑
+            if (rememberCheckbox.checked) {
+                localStorage.setItem('hutb_username', usernameInput.value);
+                localStorage.setItem('hutb_password', passwordInput.value);
+            } else {
+                localStorage.removeItem('hutb_username');
+                localStorage.removeItem('hutb_password');
+            }
+            
+            // 显示加载动画
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'block';
+            loginBtn.disabled = true;
+        });
+
+        // 输入框焦点效果
+        document.querySelectorAll('input[type="text"], input[type="password"]').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentNode.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentNode.classList.remove('focused');
+                }
+            });
+            
+            // 如果有值，保持焦点状态
+            if (input.value) {
+                input.parentNode.classList.add('focused');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

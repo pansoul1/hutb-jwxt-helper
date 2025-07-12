@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 教务系统后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f7fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: 60px 1fr;
+            grid-template-areas:
+                "sidebar header"
+                "sidebar main";
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            background: #2d3748;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #4a5568;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            color: #f7fafc;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: #cbd5e0;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #4a5568;
+            color: white;
+            border-left-color: #667eea;
+        }
+
+        .header {
+            grid-area: header;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            color: #2d3748;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-info {
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+        }
+
+        .main-content {
+            grid-area: main;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .users-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .users-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #4a5568;
+        }
+
+        .pagination a:hover {
+            background: #f7fafc;
+        }
+
+        .pagination .current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .user-grade {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .query-count {
+            background: #38a169;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .password-field {
+            position: relative;
+            max-width: 120px;
+        }
+
+        .password-hidden {
+            color: #667eea;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid #667eea;
+            border-radius: 4px;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .password-hidden:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .password-visible {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #e53e3e;
+            font-weight: bold;
+            background: #fed7d7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #e53e3e;
+            word-break: break-all;
+            max-width: 120px;
+            display: inline-block;
+        }
+
+        .encrypted-password {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            max-width: 150px;
+            word-break: break-all;
+            cursor: help;
+        }
+
+        .encrypted-password:hover {
+            background: #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px auto 1fr;
+                grid-template-areas:
+                    "header"
+                    "sidebar"
+                    "main";
+            }
+
+            .sidebar {
+                padding: 10px 0;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 10px;
+            }
+
+            .nav-item {
+                margin-bottom: 0;
+                margin-right: 5px;
+                flex-shrink: 0;
+            }
+
+            .nav-link {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+
+            .users-table {
+                font-size: 14px;
+            }
+
+            .users-table th,
+            .users-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>管理后台</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link">📊 仪表板</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.users') }}" class="nav-link active">👥 用户管理</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.stats') }}" class="nav-link">📈 统计分析</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="header">
+            <h1>用户管理</h1>
+            <div class="header-actions">
+                <span class="admin-info">管理员: {{ session.admin_username }}</span>
+                <a href="{{ url_for('admin.logout') }}" class="logout-btn">退出</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">用户列表</h3>
+                    <div>
+                        {% if user_data %}
+                        <span style="color: #4a5568; font-size: 14px;">
+                            共 {{ user_data.total }} 个用户
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if user_data and user_data.users %}
+                <div class="table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>学号</th>
+                                <th>姓名</th>
+                                <th>年级</th>
+                                <th>明文密码</th>
+                                <th>密文密码</th>
+                                <th>注册时间</th>
+                                <th>最后登录</th>
+                                <th>查询次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in user_data.users %}
+                            <tr>
+                                <td>{{ user[0] }}</td>
+                                <td>{{ user[1] or '未设置' }}</td>
+                                <td>
+                                    {% if user[0]|length >= 2 %}
+                                    <span class="user-grade">20{{ user[0][:2] }}级</span>
+                                    {% else %}
+                                    <span class="user-grade">未知</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="password-field">
+                                        <span class="password-hidden" onclick="togglePassword(this)">点击显示</span>
+                                        <span class="password-visible" style="display:none;">{{ user[2] or '无密码' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="encrypted-password" title="{{ user[3] or '无' }}">
+                                        {{ (user[3][:20] + '...') if user[3] and user[3]|length > 20 else (user[3] or '无') }}
+                                    </div>
+                                </td>
+                                <td>{{ user[4].strftime('%Y-%m-%d %H:%M') if user[4] else '-' }}</td>
+                                <td>{{ user[5].strftime('%Y-%m-%d %H:%M') if user[5] else '从未登录' }}</td>
+                                <td>
+                                    <span class="query-count">{{ user[6] or 0 }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if user_data.pages > 1 %}
+                <div class="pagination">
+                    {% if user_data.page > 1 %}
+                    <a href="{{ url_for('admin.users', page=user_data.page-1) }}">上一页</a>
+                    {% endif %}
+
+                    {% for page_num in range(1, user_data.pages + 1) %}
+                        {% if page_num == user_data.page %}
+                        <span class="current">{{ page_num }}</span>
+                        {% else %}
+                        <a href="{{ url_for('admin.users', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if user_data.page < user_data.pages %}
+                    <a href="{{ url_for('admin.users', page=user_data.page+1) }}">下一页</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <p>暂无用户数据</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换密码显示/隐藏
+        function togglePassword(element) {
+            const hiddenSpan = element;
+            const visibleSpan = element.nextElementSibling;
+            
+            if (hiddenSpan.style.display !== 'none') {
+                hiddenSpan.style.display = 'none';
+                visibleSpan.style.display = 'inline-block';
+                
+                // 3秒后自动隐藏
+                setTimeout(() => {
+                    hiddenSpan.style.display = 'inline-block';
+                    visibleSpan.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 设置当前活跃导航
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

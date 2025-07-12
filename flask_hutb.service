@@ -1,0 +1,16 @@
+[Unit]
+Description=Flask API Service for HUTB
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/claude/hutb
+Environment="PATH=/claude/hutb/venv/bin"
+Environment="PYTHONPATH=/claude/hutb"
+ExecStart=/claude/hutb/venv/bin/python /claude/hutb/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target 
