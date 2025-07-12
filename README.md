@@ -13,7 +13,13 @@
 
 <div align="center">
   
-📌 **在线体验**: [hutb.pansoul.xyz](http://hutb.pansoul.xyz)
+<h2>🚀 立即体验 🚀</h2>
+
+<a href="http://hutb.pansoul.xyz" target="_blank">
+  <img src="https://img.shields.io/badge/点击访问-hutb.pansoul.xyz-blue?style=for-the-badge&logo=firefox&logoColor=white" alt="访问网站" width="300" />
+</a>
+
+<p>⭐ 自动验证码识别 | 📊 成绩可视化 | 📅 课表查询 ⭐</p>
   
 </div>
 
