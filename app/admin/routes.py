@@ -6,7 +6,7 @@ from app.models.db import (
     get_usage_stats, log_user_login, log_system_usage
 )
 
-
+# 创建后台管理蓝图
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 def admin_required(f):
@@ -31,7 +31,7 @@ def login():
         flash('用户名和密码不能为空')
         return render_template('admin/login.html')
     
-    
+    # 验证管理员
     admin_user = verify_admin_user(username, password)
     if admin_user:
         session['admin_id'] = admin_user[0]
@@ -90,7 +90,7 @@ def api_usage_chart():
     days = request.args.get('days', 7, type=int)
     usage_stats = get_usage_stats(days=days)
     
-    
+    # 格式化数据供图表使用
     chart_data = {
         'dates': [],
         'total_queries': [],
@@ -108,3 +108,57 @@ def api_usage_chart():
             chart_data['active_users'].append(row[4])
     
     return jsonify(chart_data)
+
+@admin_bp.route('/delete_user/<username>', methods=['POST'])
+@admin_required
+def delete_user(username):
+    """删除用户"""
+    try:
+        # 导入删除用户的函数
+        from app.models.db import delete_user_by_username
+        
+        # 执行删除操作
+        success = delete_user_by_username(username)
+        
+        if success:
+            # 记录删除操作日志
+            log_system_usage(
+                username=session.get('admin_username', 'admin'),
+                action_type='delete_user',
+                ip_address=request.remote_addr,
+                success=True
+            )
+            
+            return jsonify({
+                'success': True,
+                'message': f'用户 {username} 已成功删除'
+            })
+        else:
+            # 记录删除失败日志
+            log_system_usage(
+                username=session.get('admin_username', 'admin'),
+                action_type='delete_user',
+                ip_address=request.remote_addr,
+                success=False,
+                error_message='用户不存在或数据库错误'
+            )
+            
+            return jsonify({
+                'success': False,
+                'message': '删除失败：用户不存在或数据库错误'
+            })
+            
+    except Exception as e:
+        # 记录错误日志
+        log_system_usage(
+            username=session.get('admin_username', 'admin'),
+            action_type='delete_user',
+            ip_address=request.remote_addr,
+            success=False,
+            error_message=f'删除用户失败: {str(e)}'
+        )
+        
+        return jsonify({
+            'success': False,
+            'message': f'删除失败：{str(e)}'
+        })

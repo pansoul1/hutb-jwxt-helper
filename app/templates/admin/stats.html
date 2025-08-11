@@ -202,39 +202,159 @@
             background: #d69e2e;
         }
 
+        /* 移动端汉堡菜单按钮 */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #2d3748;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .mobile-nav-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: #2d3748;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .mobile-sidebar.open {
+            left: 0;
+        }
+
+        .mobile-sidebar-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
         @media (max-width: 768px) {
             .layout {
                 grid-template-columns: 1fr;
-                grid-template-rows: 60px auto 1fr;
+                grid-template-rows: 60px 1fr;
                 grid-template-areas:
                     "header"
-                    "sidebar"
                     "main";
             }
 
             .sidebar {
-                padding: 10px 0;
+                display: none;
             }
 
-            .nav-menu {
-                display: flex;
-                overflow-x: auto;
-                padding: 0 10px;
+            .mobile-menu-btn {
+                display: block;
             }
 
-            .nav-item {
-                margin-bottom: 0;
-                margin-right: 5px;
-                flex-shrink: 0;
+            .header {
+                padding: 0 15px;
             }
 
-            .nav-link {
-                white-space: nowrap;
-                padding: 10px 15px;
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .admin-info {
+                display: none;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 15px;
+                border-radius: 8px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .time-filter {
+                align-self: stretch;
+            }
+
+            .time-filter select {
+                width: 100%;
             }
 
             .chart-container {
-                height: 300px;
+                height: 250px;
+            }
+
+            .stats-table {
+                font-size: 12px;
+            }
+
+            .stats-table th,
+            .stats-table td {
+                padding: 8px 4px;
+            }
+
+            .metric-badge {
+                padding: 2px 6px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .main-content {
+                padding: 10px;
+            }
+
+            .chart-container {
+                height: 200px;
+            }
+
+            .stats-table {
+                font-size: 11px;
+            }
+
+            .stats-table th,
+            .stats-table td {
+                padding: 6px 2px;
+            }
+
+            /* 移动端隐藏部分列 */
+            .stats-table th:nth-child(3),
+            .stats-table th:nth-child(4),
+            .stats-table td:nth-child(3),
+            .stats-table td:nth-child(4) {
+                display: none;
             }
         }
     </style>
@@ -259,7 +379,12 @@
         </div>
 
         <div class="header">
-            <h1>统计分析</h1>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    ☰
+                </button>
+                <h1>统计分析</h1>
+            </div>
             <div class="header-actions">
                 <span class="admin-info">管理员: {{ session.admin_username }}</span>
                 <a href="{{ url_for('admin.logout') }}" class="logout-btn">退出</a>
@@ -322,7 +447,43 @@
         </div>
     </div>
 
+    <!-- 移动端侧边栏 -->
+    <div class="mobile-nav-overlay" onclick="closeMobileMenu()"></div>
+    <div class="mobile-sidebar">
+        <button class="mobile-sidebar-close" onclick="closeMobileMenu()">&times;</button>
+        <div class="sidebar-header">
+            <h2>管理后台</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link">📊 仪表板</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.users') }}" class="nav-link">👥 用户管理</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.stats') }}" class="nav-link active">📈 统计分析</a>
+            </li>
+        </ul>
+    </div>
+
     <script>
+        function toggleMobileMenu() {
+            const overlay = document.querySelector('.mobile-nav-overlay');
+            const sidebar = document.querySelector('.mobile-sidebar');
+            overlay.style.display = 'block';
+            sidebar.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            const overlay = document.querySelector('.mobile-nav-overlay');
+            const sidebar = document.querySelector('.mobile-sidebar');
+            overlay.style.display = 'none';
+            sidebar.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+
         // 图表数据
         const chartData = {
             dates: [

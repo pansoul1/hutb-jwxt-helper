@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="layout">
-        
+        <!-- 侧边栏 -->
         <div class="sidebar">
             <div class="logo">
                 <div class="logo-icon">H</div>
@@ -30,7 +30,7 @@
             </ul>
         </div>
 
-        
+        <!-- 顶部栏 -->
         <div class="header">
             <h1>湖南工商大学教务系统助手</h1>
             <div class="user-info">
@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        
+        <!-- 主内容区 -->
         <div class="main-content">
             {% if get_flashed_messages() %}
             <div class="toast-container">
@@ -54,7 +54,7 @@
             </div>
             {% endif %}
             
-            
+            <!-- 成绩查询 -->
             <div class="tab-content active" id="scores-content">
                 <div class="card">
                     <div class="card-header">
@@ -64,6 +64,7 @@
                         <label for="score-semester">选择学期:</label>
                         <select id="score-semester">
                             <option value="">全部学期</option>
+                            <!-- 学期选项将通过JavaScript动态生成 -->
                         </select>
                         <button id="query-scores" class="query-btn">查询</button>
                     </div>
@@ -90,7 +91,7 @@
                 </div>
             </div>
             
-            
+            <!-- 课表查询 -->
             <div class="tab-content" id="schedule-content">
                 <div class="card">
                     <div class="card-header">
@@ -109,7 +110,7 @@
                     <div class="form-group">
                         <label for="schedule-semester">选择学期:</label>
                         <select id="schedule-semester">
-                            
+                            <!-- 学期选项将通过JavaScript动态生成 -->
                         </select>
                         <label for="campus-select">校区:</label>
                         <select id="campus-select">
@@ -130,8 +131,10 @@
         </div>
     </div>
 
+    <!-- 背景装饰元素 -->
     <div class="background-decoration"></div>
 
+    <!-- 引入外部JavaScript文件 -->
     <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=6"></script>
 </body>
 </html> 

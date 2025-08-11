@@ -1,0 +1,8 @@
+Flask==2.3.3
+PyMySQL==1.1.0
+selenium==4.15.0
+requests==2.31.0
+Pillow==10.0.1
+openai==1.93.3
+pycryptodome==3.19.0
+beautifulsoup4==4.12.2

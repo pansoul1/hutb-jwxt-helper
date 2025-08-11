@@ -15,7 +15,7 @@
     --border-radius: 12px;
     --border-radius-large: 24px;
     
-    
+    /* 保留部分原dashboard颜色 */
     --accent-color: #38b2ac;
     --accent-light: #e6fffa;
     --background-light: #f7fafc;
@@ -42,8 +42,8 @@ body {
     color: var(--text-dark);
     background: linear-gradient(135deg, var(--background-start) 0%, var(--background-middle) 50%, var(--background-end) 100%);
     min-height: 100vh;
-    max-height: 100vh; 
-    overflow: hidden; 
+    max-height: 100vh; /* 防止页面超出视口 */
+    overflow: hidden; /* 隐藏溢出内容 */
     scroll-behavior: smooth;
 }
 
@@ -260,7 +260,7 @@ body {
     font-weight: 500;
 }
 
-
+/* Form element styles */
 .form-group {
     margin-bottom: 24px;
     display: flex;
@@ -336,7 +336,7 @@ select:focus {
     left: 100%;
 }
 
-
+/* Table styles */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -444,7 +444,7 @@ tbody tr:hover {
     100% { transform: rotate(360deg); }
 }
 
-
+/* 空状态 */
 .schedule-result:empty::before {
     content: '暂无课程数据';
     display: block;
@@ -478,7 +478,7 @@ tbody tr:hover {
     }
 }
 
-
+/* 网格视图样式 */
 .schedule-table-container {
     overflow-x: auto;
     margin-top: 24px;
@@ -651,7 +651,7 @@ tbody tr:hover {
     font-weight: 400;
 }
 
-
+/* 视图切换按钮样式 */
 .view-switcher {
     display: flex;
     gap: 8px;
@@ -684,7 +684,7 @@ tbody tr:hover {
     border-color: var(--background-start);
 }
 
-
+/* 移动端响应式设计 */
 @media (max-width: 1024px) {
     .layout {
         grid-template-columns: 240px 1fr;
@@ -1151,7 +1151,7 @@ tbody tr:hover {
     }
 }
 
-
+/* 课表卡片视图样式 */
 .schedule-card-view {
     margin-top: 24px;
 }
@@ -1270,7 +1270,7 @@ tbody tr:hover {
     margin-bottom: 8px;
 }
 
-
+/* 时间信息显示 */
 .time-info {
     margin-top: 8px;
     margin-bottom: 16px;
@@ -1291,7 +1291,7 @@ tbody tr:hover {
     font-weight: 600;
 }
 
-
+/* 视图切换按钮样式 */
 .view-switcher {
     display: flex;
     gap: 8px;
@@ -1328,7 +1328,7 @@ tbody tr:hover {
     font-size: 16px;
 }
 
-
+/* 移动端视图切换按钮优化 */
 @media (max-width: 768px) {
     .view-switcher {
         margin-left: 0;
@@ -1411,7 +1411,7 @@ tbody tr:hover {
     }
 }
 
-
+/* 备注行样式 */
 .remarks-row {
     background-color: #f8fafc;
     border-top: 2px solid #e2e8f0;
@@ -1435,7 +1435,7 @@ tbody tr:hover {
     font-weight: 500;
 }
 
-
+/* 移动端成绩卡片样式 */
 .scores-card-container {
     display: flex;
     flex-direction: column;

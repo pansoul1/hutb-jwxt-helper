@@ -10,7 +10,7 @@ def install_dependencies():
     print("安装会话管理依赖...")
     dependencies = ["Flask-Session"]
     
-
+    # 尝试安装Redis客户端
     try:
         print("尝试安装Redis客户端...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "redis"])
@@ -19,7 +19,7 @@ def install_dependencies():
     except subprocess.CalledProcessError:
         print("⚠️ Redis客户端安装失败，将使用文件系统存储会话")
     
-
+    # 安装Flask-Session
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install"] + dependencies)
         print("✅ Flask-Session安装成功")
@@ -27,7 +27,7 @@ def install_dependencies():
         print("❌ Flask-Session安装失败，请手动安装: pip install Flask-Session")
         return False
     
-
+    # 创建会话存储目录
     try:
         session_dirs = ['/tmp/flask_session', 'flask_session']
         for dir_path in session_dirs:
@@ -37,7 +37,7 @@ def install_dependencies():
     except Exception as e:
         print(f"⚠️ 创建会话存储目录失败: {str(e)}")
     
-
+    # 尝试设置权限
     try:
         for dir_path in session_dirs:
             if os.path.exists(dir_path):

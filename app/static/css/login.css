@@ -1,4 +1,4 @@
-
+/* 现代化登录页面样式 - 仿照模板设计 */
 :root {
     --primary-blue: #4285f4;
     --primary-blue-hover: #3367d6;
@@ -29,19 +29,19 @@ body {
     color: var(--text-dark);
     background: linear-gradient(135deg, var(--background-start) 0%, var(--background-middle) 50%, var(--background-end) 100%);
     min-height: 100vh;
-    max-height: 100vh; 
-    overflow: hidden; 
+    max-height: 100vh; /* 防止页面超出视口 */
+    overflow: hidden; /* 隐藏溢出内容 */
 }
 
 .login-container {
     display: flex;
     min-height: 100vh;
-    max-height: 100vh; 
+    max-height: 100vh; /* 限制容器高度 */
     position: relative;
-    overflow: hidden; 
+    overflow: hidden; /* 防止内容溢出 */
 }
 
-
+/* 装饰性背景元素 */
 .login-container::before {
     content: '';
     position: absolute;
@@ -54,7 +54,7 @@ body {
     z-index: 1;
 }
 
-
+/* 左侧品牌展示区 */
 .brand-section {
     flex: 1;
     display: flex;
@@ -64,15 +64,15 @@ body {
     padding: 60px;
     position: relative;
     z-index: 2;
-    padding-top: 80px; 
+    padding-top: 80px; /* 整体上移 */
 }
 
 .brand-content {
     max-width: 500px;
-    transform: translateY(-60px); 
+    transform: translateY(-60px); /* 进一步上移 */
 }
 
-
+/* 装饰图标组 */
 .brand-icons {
     display: flex;
     gap: 20px;
@@ -166,7 +166,7 @@ body {
     font-size: 16px;
 }
 
-
+/* 右侧表单区域 */
 .form-section {
     flex: 1;
     display: flex;
@@ -175,7 +175,7 @@ body {
     padding: 40px;
     position: relative;
     z-index: 2;
-    transform: translateY(-40px); 
+    transform: translateY(-40px); /* 减少上移距离，让登录框稍微下移 */
 }
 
 .login-card {
@@ -217,7 +217,7 @@ body {
     color: var(--text-gray);
 }
 
-
+/* 表单样式 */
 .form-group {
     margin-bottom: 24px;
 }
@@ -251,7 +251,7 @@ body {
     color: var(--text-light);
 }
 
-
+/* 密码输入框 */
 .password-input {
     position: relative;
 }
@@ -279,7 +279,7 @@ body {
     height: 20px;
 }
 
-
+/* 记住密码复选框 */
 .remember-group {
     margin-bottom: 32px;
 }
@@ -299,7 +299,7 @@ body {
     accent-color: var(--primary-blue);
 }
 
-
+/* 登录按钮 */
 .login-btn {
     width: 100%;
     padding: 16px;
@@ -329,7 +329,7 @@ body {
     cursor: not-allowed;
 }
 
-
+/* 加载动画 */
 .spinner {
     width: 20px;
     height: 20px;
@@ -345,15 +345,8 @@ body {
 }
 
 
-.login-notice {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-light);
-    margin-top: 24px;
-    line-height: 1.5;
-}
 
-
+/* 错误消息 */
 .flash-message {
     background: #fef2f2;
     color: #dc2626;
@@ -371,25 +364,25 @@ body {
     75% { transform: translateX(5px); }
 }
 
-
+/* 移动端响应式设计 */
 @media (max-width: 768px) {
     body {
-        overflow-y: auto; 
-        max-height: none; 
+        overflow-y: auto; /* 移动端允许滚动 */
+        max-height: none; /* 移动端取消高度限制 */
     }
     
     .login-container {
         flex-direction: column;
-        max-height: none; 
-        overflow: visible; 
-        min-height: 100vh; 
-        height: 100vh; 
+        max-height: none; /* 移动端取消高度限制 */
+        overflow: visible; /* 移动端允许溢出 */
+        min-height: 100vh; /* 确保填满屏幕 */
+        height: 100vh; /* 严格限制高度 */
     }
     
     .brand-section {
         flex: none;
-        min-height: 45vh; 
-        padding: 25px 20px 15px 20px; 
+        min-height: 45vh; /* 减少上半部分高度 */
+        padding: 25px 20px 15px 20px; /* 减少底部padding */
         text-align: center;
         justify-content: center;
         display: flex;
@@ -398,7 +391,7 @@ body {
     
     .brand-content {
         max-width: none;
-        transform: translateY(0); 
+        transform: translateY(0); /* 移动端不需要上移 */
         width: 100%;
     }
     
@@ -449,7 +442,7 @@ body {
     
     .form-section {
         flex: 1;
-        padding: 0 20px 10px 20px; 
+        padding: 0 20px 10px 20px; /* 最小化底部padding */
         min-height: 55vh;
         display: flex;
         align-items: flex-start;
@@ -464,7 +457,7 @@ body {
         margin: 0;
         width: 100%;
         max-width: 400px;
-        transform: translateY(-20px); 
+        transform: translateY(-20px); /* 登录框上移 */
     }
     
     .card-header h2 {
@@ -473,7 +466,7 @@ body {
     
     .form-group input[type="text"],
     .form-group input[type="password"] {
-        font-size: 16px; 
+        font-size: 16px; /* 防止iOS缩放 */
     }
 }
 
@@ -527,13 +520,13 @@ body {
     }
     
     .form-section {
-        padding: 0 15px 15px 15px; 
+        padding: 0 15px 15px 15px; /* 进一步减少底部padding */
         min-height: 55vh;
     }
     
     .login-card {
         padding: 24px 20px;
-        transform: translateY(-30px); 
+        transform: translateY(-30px); /* 小屏幕登录框更多上移 */
     }
     
     .card-header {
@@ -553,7 +546,7 @@ body {
     }
 }
 
-
+/* 横屏适配 */
 @media (max-height: 600px) and (orientation: landscape) {
     .login-container {
         flex-direction: row;
@@ -568,7 +561,7 @@ body {
     
     .brand-content {
         max-width: 400px;
-        transform: translateY(-80px); 
+        transform: translateY(-80px); /* 横屏时进一步上移 */
     }
     
     .brand-icons {
@@ -597,4 +590,23 @@ body {
     .login-card {
         padding: 32px 28px;
     }
+}
+
+/* 忘记密码链接样式 */
+.forgot-password-link {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.forgot-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: all 0.3s ease;
+}
+
+.forgot-link:hover {
+    color: var(--primary-blue-hover);
+    text-decoration: underline;
 }
