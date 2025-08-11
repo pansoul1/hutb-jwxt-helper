@@ -27,7 +27,7 @@ logger = logging.getLogger('app')
 app = Flask(__name__, template_folder='app/templates', static_folder='app/static')
 
 # 配置Flask应用 - 使用固定的secret_key代替动态生成
-app.secret_key = "hutb_jwxt_secret_key_2024"  # 固定密钥
+app.secret_key = "YOUR_SECRET_KEY_HERE"
 
 # 配置会话
 app.config['SESSION_PERMANENT'] = True
@@ -65,7 +65,7 @@ except ImportError:
         app.config['SESSION_TYPE'] = None
 
 # 配置OpenAI
-DASHSCOPE_API_KEY = "sk-863f29755e2c44b190836b2587fdd3e0"
+DASHSCOPE_API_KEY = ".."
 
 # 注册后台管理蓝图
 from app.admin.routes import admin_bp

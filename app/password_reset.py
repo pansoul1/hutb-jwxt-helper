@@ -37,7 +37,7 @@ class PasswordResetService:
         
         # 初始化AI客户端，用于验证码识别
         self.ai_client = OpenAI(
-            api_key="sk-863f29755e2c44b190836b2587fdd3e0",
+            api_key="..",
             base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
         )
         
